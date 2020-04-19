@@ -5,6 +5,7 @@
 package com.talch.facade;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.talch.beans.Role;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Scope("prototype")
 public class UsersFacade implements Facade {
 
 	@Autowired

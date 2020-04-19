@@ -22,7 +22,6 @@ import com.talch.rest.CustomSession;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Service
 @Data
 @AllArgsConstructor
@@ -34,16 +33,14 @@ public class ChatSystem {
 
 	@Autowired
 	private UserRepo repo;
-
-	@Autowired
-	private AdminFacade admin;
-
 	@Autowired
 	private List<CustomSession> sessionList;
 
 	public Facade login(String phone, String password) throws FacadeNullExeption {
 
-		if ((phone.equals("+972547219582")) || (phone.equals("+972546647991"))) {
+		if ((phone.equals("+972547219582")&&(password.equals("1234")))
+				|| (phone.equals("+972546647991")&&(password.equals("1234")))) {
+			AdminFacade admin = ctx.getBean(AdminFacade.class);
 			admin.setPhone(phone);
 			admin.setPassword(password);
 			admin.setName(repo.findByPhoneAndPassword(phone, password).getUserName());

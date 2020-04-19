@@ -25,12 +25,12 @@ import com.talch.service.SysService;
 @RestController
 @RequestMapping("login")
 public class LoginController {
-	
+
 	private static long id = 1;
-	
+
 	@Autowired
 	private ChatSystem system;
-	
+
 	@Autowired
 	private UsersFacade userFacade;
 
@@ -40,16 +40,22 @@ public class LoginController {
 	@PostConstruct
 	public void start() {
 		System.out.println("start");
-		Users user1 = new Users(1, "+972548012831", "1111", "Rus", Role.User, null);
-		Users user2 = new Users(21, "+972548012832", "1112", "Tus", Role.User, null);
-		Users user3 = new Users(31, "+972548012833", "1113", "Sam", Role.User, null);
-		Users user4 = new Users(41, "+972548012834", "1114", "Gai", Role.User, null);
+		Users user1 = new Users(3, "+972548012831", "1111", "Ruslan", Role.User, null);
+		Users user2 = new Users(4, "+972548012832", "1112", "Yosi", Role.User, null);
+		Users user3 = new Users(5, "+972548012833", "1113", "Sam", Role.User, null);
+		Users user4 = new Users(6, "+972548012834", "1114", "Gai", Role.User, null);
+		Users user5 = new Users(1, "+972547219582", "1234", "Anatoly", Role.Admin, "admin1");
+		Users user6 = new Users(2, "+972546647991", "1234", "Kobi", Role.Admin, "admin2");
+
 		userFacade.getUserRepo().save(user1);
 		userFacade.getUserRepo().save(user2);
 		userFacade.getUserRepo().save(user3);
 		userFacade.getUserRepo().save(user4);
+		userFacade.getUserRepo().save(user5);
+		userFacade.getUserRepo().save(user6);
 
 	}
+
 	// http://localhost:8081/logging/{phone}/{password}
 	@PostMapping(value = "/logging/")
 	public ResponseEntity<?> login(@RequestParam("countryCode") String countryCode,
@@ -70,16 +76,18 @@ public class LoginController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (facade != null) {
+		if ((facade != null) && (facade.getRole().toString().equals("User"))) {
 			Users user = userFacade.getUserRepo().findByPhoneAndPassword(userPhone, password);
 			user.setToken(token);
 			userFacade.saveUser(user);
-//		    session.setFacade(facade);
-//		    session.setLastAccessed(lastAccessed);
-//			system.getSessionList().add(session);
-//			System.out.println(system.getSessionList());
+			session.setFacade(facade);
+			session.setLastAccessed(lastAccessed);
+			system.getSessionList().add(session);
+			System.out.println(system.getSessionList());
 			return ResponseEntity.status(HttpStatus.OK).body(token);
-		} else {
+		} else if ((facade != null) && (facade.getRole().toString().equals("Admin"))) {
+			return ResponseEntity.status(HttpStatus.OK).body("You Are Admin and you know you token :)");
+		}else{
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalide User");
 		}
 
