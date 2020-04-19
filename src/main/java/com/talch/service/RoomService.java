@@ -6,6 +6,7 @@ package com.talch.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -65,6 +66,9 @@ public class RoomService {
 	public Room getRoomByRoomName(String roomName) {
 		return roomRepo.findByRoomName(roomName);
 	}
+	public Optional<Room> getRoomById(long id) {
+		return roomRepo.findById(id);
+	}
 
 	public Room createRoom(String token, String roomName) throws FacadeNullExeption, ExExeption {
 		Users user = userFacade.getUserByToken(token);
@@ -84,26 +88,26 @@ public class RoomService {
 		return roomRepo.save(new Room(room.getId(), room.getColor(), newRoomName, room.getUsers()));
 	}
 
-	public Room enterRoom(String token, String roomName) throws FacadeNullExeption, ExExeption {
-		Room room = getRoomByRoomName(roomName);
+	public Room enterRoom(String token, long id) throws FacadeNullExeption, ExExeption {
+		Optional<Room> room = getRoomById(id);
 		Users user = userFacade.getUserByToken(token);		
-		if (room.getColor().equals(RoomColor.Green)) {
+		if (room.get().getColor().equals(RoomColor.Green)) {
 			Collection<Users> userSet = new ArrayList<Users>();
 			userSet.add(user);
-			room.setUsers(userSet);
-			room.setColor(RoomColor.Yellow);
-			return roomRepo.save(room);
-		}else if (room.getColor().equals(RoomColor.Yellow)) {
+			room.get().setUsers(userSet);
+			room.get().setColor(RoomColor.Yellow);
+			return roomRepo.save(room.get());
+		}else if (room.get().getColor().equals(RoomColor.Yellow)) {
 			
-			Collection<Users> userSet = room.getUsers();
+			Collection<Users> userSet = room.get().getUsers();
 			userSet.add(user);
-			room.setUsers(userSet);
-			room.setColor(RoomColor.Red);
+			room.get().setUsers(userSet);
+			room.get().setColor(RoomColor.Red);
 			conv.setProducer(producer);
-			conv.setRoomName(room.getRoomName());
+			conv.setRoomName(room.get().getRoomName());
 			conv.setPropert(prop);
 			conv.start();
-			return roomRepo.save(room);
+			return roomRepo.save(room.get());
 		}
 		throw new ExExeption("This room is full");
 	}
