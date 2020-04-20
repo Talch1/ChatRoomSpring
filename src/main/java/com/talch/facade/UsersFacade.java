@@ -64,8 +64,14 @@ public class UsersFacade implements Facade {
 		throw new ExExeption("Country code or Operator code is incorrect");
 	}
 
-	public Users getUserByToken(String token) {
-		return userRepo.findByToken(token);
+	public Users getUserByToken(String token) throws ExExeption {
+	
+			if (userRepo.findByToken(token)!=null) {
+				return userRepo.findByToken(token);
+			}else {
+				throw new ExExeption("User don't fund");
+			}
+			
 	}
 
 	public Users saveUser(Users user) {

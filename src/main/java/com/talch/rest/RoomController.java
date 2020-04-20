@@ -22,18 +22,17 @@ import com.talch.service.RoomService;
 @RestController
 @RequestMapping("/room")
 public class RoomController {
-	
+
 	@Autowired
 	private RoomService roomService;
-	
+
 	// http://localhost:8081/room/getAll/"
 	@GetMapping(value = "/getAll/")
 	public ResponseEntity<?> getAll(@RequestHeader String token) {
-		
 
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(roomService.getAllRooms(token));
-		} catch (FacadeNullExeption e) {
+		} catch (FacadeNullExeption | ExExeption e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -43,7 +42,6 @@ public class RoomController {
 	// http://localhost:8081/room/createRoom/"
 	@PostMapping(value = "/createRoom/")
 	public ResponseEntity<?> createRoom(@RequestHeader String token, @RequestParam String roomName) {
-	
 
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(roomService.createRoom(token, roomName));
@@ -58,7 +56,7 @@ public class RoomController {
 	@PutMapping(value = "/updateRoom/")
 	public ResponseEntity<?> update(@RequestHeader String token, @RequestParam String roomName,
 			@RequestParam String newRoomName) {
-		
+
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(roomService.updateRoom(token, roomName, newRoomName));
 		} catch (Exception e) {
@@ -73,6 +71,19 @@ public class RoomController {
 			return ResponseEntity.status(HttpStatus.OK).body(roomService.enterRoom(token, roomId));
 		} catch (FacadeNullExeption | ExExeption e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalide User");
+	}
+
+	// http://localhost:8081/room/cameOut/"
+	@PostMapping(value = "/cameOut/")
+	public ResponseEntity<?> cameOut(@RequestHeader String token, @RequestParam long roomId) {
+
+		try {
+			return ResponseEntity.status(HttpStatus.OK).body(roomService.roomExit(token, roomId));
+		} catch (ExExeption e) {
+
 			e.printStackTrace();
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalide User");
