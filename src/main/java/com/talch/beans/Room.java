@@ -34,7 +34,6 @@ public class Room {
 	
 	private String roomName;
 	
-	
 	@Autowired
 	private Collection<Users> users;
 	

@@ -8,21 +8,30 @@ import com.talch.beans.ChattingMessage;
 import com.talch.config.RabbitMQProperties;
 import com.talch.service.SysService;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Component
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Producer {
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
 
-    @Autowired
-    RabbitMQProperties rabbitMQProperties;
-    @Autowired
-	SysService service;   
-
+	@Autowired
+	private RabbitMQProperties rabbitMQProperties;
+	
+	@Autowired
+	private SysService service;
 
 	public void sendMessage(ChattingMessage message) {
 		service.getMemoryChatMap().put(message.getRoom(), message);
-		  rabbitTemplate.convertAndSend(rabbitMQProperties.getExchangeName(), rabbitMQProperties.getRoutingKey(), message.getMessage());
-	System.out.println(message);
+		rabbitTemplate.convertAndSend(rabbitMQProperties.getExchangeName(), rabbitMQProperties.getRoutingKey(),
+				message.getMessage());
+
+		
 	}
 }
