@@ -48,7 +48,7 @@ public class Room {
 		return color;
 	}
 	
-	@OneToMany( cascade=CascadeType.MERGE)
+	@OneToMany( cascade=CascadeType.ALL)
 	public Collection<Users> getUsers() {
 		return users;
 	}

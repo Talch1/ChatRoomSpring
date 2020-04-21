@@ -7,6 +7,7 @@ package com.talch.rest;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +37,12 @@ public class LoginController {
 
 	@Autowired
 	private SysService service;
+	
+	@Autowired
+	ApplicationContext ctx;
 
 	@PostConstruct
 	public void start() {
-		System.out.println("start");
 		Users user1 = new Users(3, "+972548012831", "1111", "Ruslan", Role.User, null);
 		Users user2 = new Users(4, "+972548012832", "1112", "Yosi", Role.User, null);
 		Users user3 = new Users(5, "+972548012833", "1113", "Sam", Role.User, null);
@@ -62,14 +65,15 @@ public class LoginController {
 			@RequestParam("operatorCode") String operatorCode, @RequestParam("phone") String phone,
 			@RequestParam("password") String password) {
 
-		CustomSession session = new CustomSession();
+		
 		Facade facade = null;
 		// String token = UUID.randomUUID().toString();
 		String token = "user" + id++;
 		long lastAccessed = System.currentTimeMillis();
 
 		String userPhone;
-		userPhone = service.getCountryCode().get(countryCode) + service.getOperatorCode().get(operatorCode) + phone;
+		userPhone = service.getCountryCode().get(countryCode) + 
+				service.getOperatorCode().get(operatorCode) + phone;
 		try {
 			facade = system.login(userPhone, password);
 		} catch (FacadeNullExeption e) {
@@ -78,16 +82,18 @@ public class LoginController {
 		}
 		if ((facade != null) && (facade.getRole().toString().equals("User"))) {
 			Users user = userFacade.getUserRepo().findByPhoneAndPassword(userPhone, password);
+			
 			user.setToken(token);
 			userFacade.saveUser(user);
+			CustomSession session = ctx.getBean(CustomSession.class);
 			session.setFacade(facade);
 			session.setLastAccessed(lastAccessed);
 			system.getSessionList().add(session);
-			System.out.println(system.getSessionList());
+			
 			return ResponseEntity.status(HttpStatus.OK).body(token);
 		} else if ((facade != null) && (facade.getRole().toString().equals("Admin"))) {
 			return ResponseEntity.status(HttpStatus.OK).body("You Are Admin and you know you token :)");
-		}else{
+		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalide User");
 		}
 

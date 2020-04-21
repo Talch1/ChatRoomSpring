@@ -48,6 +48,7 @@ public class RoomService {
 
 	@PostConstruct
 	public void roomInilaice() {
+		
 		roomRepo.deleteAll();
 		roomRepo.save(new Room(roomNum++, RoomColor.Green, "room1", null));
 		roomRepo.save(new Room(roomNum++, RoomColor.Green, "room2", null));
@@ -56,23 +57,28 @@ public class RoomService {
 	}
 
 	public Collection<Room> getAllRooms(String token) throws ExExeption, FacadeNullExeption {
+		
 		Users user = userFacade.getUserByToken(token);
 		service.userCheck(user);
 		return roomRepo.findAll();
 	}
 
 	public Room getRoomByRoomName(String roomName) {
+		
 		return roomRepo.findByRoomName(roomName);
 	}
 
 	public Optional<Room> getRoomById(long id) {
+		
 		return roomRepo.findById(id);
 	}
 
 	public Room createRoom(String token, String roomName) throws FacadeNullExeption, ExExeption {
+		
 		Users user = userFacade.getUserByToken(token);
 		service.userCheck(user);
 		Room room = roomRepo.findByRoomName(roomName);
+		
 		if (room == null) {
 			return roomRepo.save(new Room(roomNum++, RoomColor.Green, roomName, null));
 		}
@@ -80,22 +86,28 @@ public class RoomService {
 	}
 
 	public Room updateRoom(String token, String roomName, String newRoomName) throws FacadeNullExeption, ExExeption {
+		
 		Room room = getRoomByRoomName(roomName);
 		Users user = userFacade.getUserByToken(token);
 		service.userCheck(user);
 		room.setRoomName(newRoomName);
+		
 		return roomRepo.save(new Room(room.getId(), room.getColor(), newRoomName, room.getUsers()));
 	}
 
 	public Room enterRoom(String token, long id) throws FacadeNullExeption, ExExeption {
+		
 		Optional<Room> room = getRoomById(id);
 		Users user = userFacade.getUserByToken(token);
+		
 		if (room.get().getColor().equals(RoomColor.Green)) {
+			
 			Collection<Users> userSet = new ArrayList<Users>();
 			userSet.add(user);
 			room.get().setUsers(userSet);
 			room.get().setColor(RoomColor.Yellow);
 			return roomRepo.save(room.get());
+			
 		} else if (room.get().getColor().equals(RoomColor.Yellow)) {
 
 			Collection<Users> userSet = room.get().getUsers();
@@ -103,8 +115,7 @@ public class RoomService {
 			room.get().setUsers(userSet);
 			room.get().setColor(RoomColor.Red);
 			Conversation conv = ctx.getBean(Conversation.class);
-			conv.setRoomName(room.get().getRoomName());
-			System.out.println(conv);
+			conv.setRoom(room.get());
 			conv.start();
 			return roomRepo.save(room.get());
 		}
@@ -112,14 +123,17 @@ public class RoomService {
 	}
 
 	public Room roomExit(String token, long id) throws ExExeption {
+		
 		Optional<Room> room = getRoomById(id);
 		Users user = userFacade.getUserByToken(token);
-		System.out.println(room);
-		System.out.println(user);
+		
 		switch (room.get().getColor().toString()) {
+		
 		case ("Green"):
 			throw new ExExeption("Room is empty");
+		
 		case ("Yellow"):
+			
 			Collection<Users> roomUsers1 = room.get().getUsers();
 			roomUsers1.remove(user);
 			System.out.println("user " + user + "came out");
@@ -127,7 +141,9 @@ public class RoomService {
 			room.get().setUsers(roomUsers1);
 			roomRepo.save(room.get());
 			return room.get();
+			
 		case ("Red"):
+			
 			Collection<Users> roomUsers = room.get().getUsers();
 			roomUsers.remove(user);
 			System.out.println("user " + user + "came out");
@@ -135,9 +151,8 @@ public class RoomService {
 			room.get().setUsers(roomUsers);
 			roomRepo.save(room.get());
 			return room.get();
-		default:
-			return null;
-
+			
+		default: return null;
 		}
 	}
 

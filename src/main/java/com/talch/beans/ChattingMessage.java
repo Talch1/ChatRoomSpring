@@ -15,6 +15,6 @@ public class ChattingMessage {
     private String message;
     private String user;
     private long time = System.currentTimeMillis();
-    private String room;
+    private long roomId;
 
 }

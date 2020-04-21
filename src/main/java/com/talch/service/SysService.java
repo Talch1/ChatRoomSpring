@@ -23,8 +23,6 @@ public class SysService {
 	private Map<String, String> countryCode = new HashMap<String, String>();
 
 	private Map<String, String> operatorCode = new HashMap<String, String>();
-	
-	private Map<String, ChattingMessage> memoryChatMap = new HashMap<String, ChattingMessage>();
 
 	@PostConstruct
 	public void setPhoneNumbers() {
