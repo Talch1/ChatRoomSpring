@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 
 import com.talch.beans.ChattingMessage;
 import com.talch.beans.Room;
@@ -13,6 +14,8 @@ import com.talch.config.RabbitMQProperties;
 import com.talch.rabbit.Producer;
 import com.talch.repo.RoomRepo;
 
+
+@Service
 public class ConversationServ {
 	
 	@Autowired
