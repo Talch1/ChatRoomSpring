@@ -1,8 +1,11 @@
 package com.talch.rest;
 
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +23,13 @@ public class MessageController {
 	MessageService messageService;
 
 
-	@GetMapping(value = "/producer")
-	public String producer(@RequestParam("exchangeName") String exchange, @RequestParam("routingKey") 
+	@PostMapping(value = "/producer")
+	public ChattingMessage producer(@RequestParam("exchangeName") String exchange, @RequestParam("routingKey") 
 	String routingKey,
 	@RequestBody ChattingMessage message,@RequestHeader String token) {
        
 		messageService.sendMessage(message,exchange,routingKey);
 		
-		return "Message sent to the RabbitMQ Topic Exchange Successfully";
+		return message;
 	}
 }

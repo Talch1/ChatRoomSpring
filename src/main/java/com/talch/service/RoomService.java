@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.talch.beans.Conversation;
+
 import com.talch.beans.Room;
 import com.talch.beans.RoomColor;
 import com.talch.beans.Users;
@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 public class RoomService {
 
 	public static long roomNum = 1;
+	public static long convId = 1;
 
 	@Autowired
 	private RoomRepo roomRepo;
@@ -44,8 +45,12 @@ public class RoomService {
 	@Autowired
 	private UsersFacade userFacade;
 	
-	@Autowired ApplicationContext ctx;
+	@Autowired 
+	private ApplicationContext ctx;
 
+	@Autowired
+	private ConversationServ convServ;
+	
 	@PostConstruct
 	public void roomInilaice() {
 		
@@ -114,9 +119,8 @@ public class RoomService {
 			userSet.add(user);
 			room.get().setUsers(userSet);
 			room.get().setColor(RoomColor.Red);
-			Conversation conv = ctx.getBean(Conversation.class);
-			conv.setRoom(room.get());
-			conv.start();
+			convServ.start(room.get().getId());
+			
 			return roomRepo.save(room.get());
 		}
 		throw new ExExeption("This room is full");
