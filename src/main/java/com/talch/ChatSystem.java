@@ -49,7 +49,7 @@ public class ChatSystem {
 			return admin;
 		} else {
 			Users user = repo.findByPhoneAndPassword(phone, password);
-			System.err.println(user);
+			
 			if ((user != null) && (user.getRole().equals(Role.User))) {
 				UsersFacade usersFacade = ctx.getBean(UsersFacade.class);
 				usersFacade.setPhone(phone);
