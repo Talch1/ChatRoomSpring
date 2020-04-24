@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.talch.beans.ChattingMessage;
 
 @Repository
-public interface MongoRepo extends MongoRepository<ChattingMessage, Long>{
+public interface ChatRepo extends MongoRepository<ChattingMessage, Long>{
 	
 }

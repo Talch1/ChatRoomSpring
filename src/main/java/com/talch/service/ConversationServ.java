@@ -15,7 +15,14 @@ import com.talch.config.RabbitMQProperties;
 import com.talch.repo.RoomRepo;
 import com.talch.repo.UserRepo;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Service
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConversationServ {
 
 	@Autowired

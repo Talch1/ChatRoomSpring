@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 
 import com.talch.beans.ChattingMessage;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Service
 public class Producer {
 

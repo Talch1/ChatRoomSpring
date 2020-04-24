@@ -21,17 +21,7 @@ public class ChattingMessage {
     private String user;
     private long time = System.currentTimeMillis();
     private long roomId;
-    
-    
-	public String getMessage() {
-		return message;
-	}
-	public String getUser() {
-		return user;
-	}
-	public long getTime() {
-		return time;
-	}
+
 	@Id
 	public long getRoomId() {
 		return roomId;
