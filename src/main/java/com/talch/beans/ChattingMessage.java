@@ -2,6 +2,7 @@ package com.talch.beans;
 
 import javax.persistence.Id;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Component
 @Document
+@Scope("prototype")
 public class ChattingMessage {
 
     private String message;

@@ -119,7 +119,6 @@ public class RoomService {
 			userSet.add(user);
 			room.get().setUsers(userSet);
 			room.get().setColor(RoomColor.Red);
-			convServ.run();
 			convServ.start(room.get().getId());
 			
 			return roomRepo.save(room.get());

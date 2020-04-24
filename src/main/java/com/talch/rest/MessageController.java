@@ -20,7 +20,7 @@ public class MessageController {
 
 	@PostMapping(value = "/producer")
 	public ChattingMessage producer(@RequestParam("exchangeName") String exchange,
-			@RequestParam("routingKey") String routingKey, @RequestBody ChattingMessage message,
+			@RequestParam("routingKey") String routingKey, @RequestBody String message,
 			@RequestHeader String token) {
 		return serv.sendMessage(message, exchange, routingKey, token);
 	}
