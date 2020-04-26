@@ -40,16 +40,6 @@ public class ConversationServ {
 	@Autowired
 	private Producer producer;
 
-	BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<String>(5);
-
-	@PostConstruct
-	void blockingStart() throws InterruptedException {
-		blockingQueue.put("talchAQ");
-		blockingQueue.put("talchBQ");
-		blockingQueue.put("talchCQ");
-		blockingQueue.put("talchDQ");
-	}
-
 	public void sendFirstConnection(long id) {
 
 		Optional<Room> room = roomRepo.findById(id);
@@ -67,14 +57,14 @@ public class ConversationServ {
 		chattingMessage.setTime(System.currentTimeMillis());
 		chattingMessage.setUser(userList.get(0).getUserName());
 
-		producer.sendMessage(chattingMessage, propert.getExchangeName(), propert.getRoutingKeyA());
+		producer.sendMessage(propert.getExchangeName(), room.get().getRoutKey(), chattingMessage);
 
 		chattingMessage2.setMessage("user " + userList.get(1).getUserName() + " connected");
 		chattingMessage2.setRoomId(room.get().getId());
 		chattingMessage2.setTime(System.currentTimeMillis());
 		chattingMessage2.setUser(userList.get(1).getUserName());
 
-		producer.sendMessage(chattingMessage2, propert.getExchangeName(), propert.getRoutingKeyA());
+		producer.sendMessage(propert.getExchangeName(), room.get().getRoutKey(), chattingMessage2);
 	}
 
 	public void start(long id) throws Exception {
@@ -82,19 +72,13 @@ public class ConversationServ {
 		Producer producer = ctx.getBean(Producer.class);
 		RabbitMQProperties propert = ctx.getBean(RabbitMQProperties.class);
 		ChattingMessage chattingMessage = ctx.getBean(ChattingMessage.class);
-		try {
-			String routKey = blockingQueue.take();
-			room.get().setRoutKey(routKey);
-			roomRepo.save(room.get());
-		} catch (InterruptedException e) {
-			throw new Exception("Please await for connection");
-		}
+
 		chattingMessage.setMessage("start chat");
 		chattingMessage.setRoomId(room.get().getId());
 		chattingMessage.setTime(System.currentTimeMillis());
 		chattingMessage.setUser("System");
 
-		producer.sendMessage(chattingMessage, propert.getExchangeName(), propert.getRoutingKeyA());
+		producer.sendMessage(propert.getExchangeName(), room.get().getRoutKey(), chattingMessage);
 
 		sendFirstConnection(room.get().getId());
 	}
@@ -109,7 +93,7 @@ public class ConversationServ {
 		chattingM.setTime(System.currentTimeMillis());
 		chattingM.setMessage(message);
 		chattingM.setRoomId(room.getId());
-		return producer.sendMessage(chattingM, propert.getExchangeName(), room.getRoutKey());
+		return producer.sendMessage(propert.getExchangeName(), room.getRoutKey(), chattingM);
 
 	}
 

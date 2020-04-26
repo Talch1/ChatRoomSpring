@@ -7,6 +7,8 @@ package com.talch.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import javax.annotation.PostConstruct;
 
@@ -57,14 +59,20 @@ public class RoomService {
 
 	@Autowired
 	private Producer producer;
+	BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<String>(5);
 
 	@PostConstruct
-	public void roomInilaice() {
+	public void roomInilaice() throws InterruptedException {
 
 		roomRepo.deleteAll();
 		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room1", null));
 		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room2", null));
 		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room3", null));
+
+		blockingQueue.put("talchARK");
+		blockingQueue.put("talchBRK");
+		blockingQueue.put("talchCRK");
+		blockingQueue.put("talchDRK");
 
 	}
 
@@ -107,7 +115,7 @@ public class RoomService {
 		return roomRepo.save(new Room(room.getId(), room.getRoutKey(), room.getColor(), newRoomName, room.getUsers()));
 	}
 
-	public Room enterRoom(String token, long id) throws FacadeNullExeption, ExExeption {
+	public Room enterRoom(String token, long id) throws ExExeption  {
 
 		Optional<Room> room = getRoomById(id);
 		Users user = userFacade.getUserByToken(token);
@@ -125,6 +133,16 @@ public class RoomService {
 			Collection<Users> userSet = room.get().getUsers();
 			userSet.add(user);
 			room.get().setUsers(userSet);
+			
+			try {
+				String routKey = blockingQueue.take();
+				room.get().setRoutKey(routKey);
+				roomRepo.save(room.get());
+				
+			} catch (InterruptedException e) {
+				throw new ExExeption("Please await for connection");
+			}
+			
 			room.get().setColor(RoomColor.Red);
 			try {
 				convServ.start(room.get().getId());
@@ -132,7 +150,6 @@ public class RoomService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 			return roomRepo.save(room.get());
 		}
 		throw new ExExeption("This room is full");
@@ -157,7 +174,7 @@ public class RoomService {
 			room.get().setUsers(roomUsers1);
 
 			try {
-				convServ.blockingQueue.put(room.get().getRoutKey());
+				blockingQueue.put(room.get().getRoutKey());
 				room.get().setRoutKey(null);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

@@ -69,7 +69,7 @@ public class RoomController {
 	public ResponseEntity<?> enterRoom(@RequestHeader String token, @RequestParam long roomId) {
 		try {
 			return ResponseEntity.status(HttpStatus.OK).body(roomService.enterRoom(token, roomId));
-		} catch (FacadeNullExeption | ExExeption e) {
+		} catch (ExExeption e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

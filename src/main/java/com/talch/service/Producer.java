@@ -26,10 +26,10 @@ public class Producer {
 
 	private ArrayList<ChattingMessage> allMessages = new ArrayList<ChattingMessage>();
 
-	public ChattingMessage sendMessage(ChattingMessage message, String exchange, String routingKey) {
+	public ChattingMessage sendMessage(String exchange, String routingKey,ChattingMessage message) {
 
 		allMessages.add(message);
-		System.err.println(allMessages);
+		System.out.println("ex "+exchange+" : " +" rout " + routingKey);
 		rabbitTemplate.convertAndSend(exchange, routingKey, message.getUser() + ": " + message);
 		return message;
 	}
