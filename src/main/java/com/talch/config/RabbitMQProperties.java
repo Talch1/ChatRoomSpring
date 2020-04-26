@@ -10,9 +10,16 @@ import lombok.Data;
 @Data
 public class RabbitMQProperties {
 
-    private String queueName;
-    private String exchangeName;
-    private String routingKey;
+	private String exchangeName;
+	
+	private String queueNameA;
+	private String queueNameB;
+	private String queueNameC;
+	private String queueNameD;
 
- 
+	private String routingKeyA;
+	private String routingKeyB;
+	private String routingKeyC;
+	private String routingKeyD;
+
 }

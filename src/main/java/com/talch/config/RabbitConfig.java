@@ -7,12 +7,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.talch.rabbit.Receiver;
 
 import lombok.Data;
 
@@ -22,13 +19,28 @@ public class RabbitConfig {
 
 	@Autowired
 	RabbitTemplate rabbitTemplate;
-	
+
 	@Autowired
 	RabbitMQProperties rabroper;
 
 	@Bean
-	Queue queue() {
-		return new Queue(rabroper.getQueueName(), false);
+	Queue queue1() {
+		return new Queue(rabroper.getQueueNameA(), false);
+	}
+
+	@Bean
+	Queue queue2() {
+		return new Queue(rabroper.getQueueNameB(), false);
+	}
+
+	@Bean
+	Queue queue3() {
+		return new Queue(rabroper.getQueueNameC(), false);
+	}
+
+	@Bean
+	Queue queue4() {
+		return new Queue(rabroper.getQueueNameD(), false);
 	}
 
 	@Bean
@@ -37,23 +49,59 @@ public class RabbitConfig {
 	}
 
 	@Bean
-	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(rabroper.getRoutingKey());
+	Binding bindingA(Queue queue1, TopicExchange exchange) {
+		return BindingBuilder.bind(queue1).to(exchange).with(rabroper.getRoutingKeyA());
 	}
 
 	@Bean
-	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-			MessageListenerAdapter listenerAdapter) {
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(rabroper.getQueueName());
-		container.setMessageListener(listenerAdapter);
-		return container;
+	Binding bindingB(Queue queue2, TopicExchange exchange) {
+		return BindingBuilder.bind(queue2).to(exchange).with(rabroper.getRoutingKeyB());
 	}
 
 	@Bean
-	MessageListenerAdapter listenerAdapter(Receiver receiver) {
-		return new MessageListenerAdapter(receiver, "receiveMessage");
+	Binding bindingC(Queue queue3, TopicExchange exchange) {
+		return BindingBuilder.bind(queue3).to(exchange).with(rabroper.getRoutingKeyC());
+	}
+
+	@Bean
+	Binding bindingD(Queue queue4, TopicExchange exchange) {
+		return BindingBuilder.bind(queue4).to(exchange).with(rabroper.getRoutingKeyD());
+	}
+
+	@Bean
+	public SimpleMessageListenerContainer simpleRabbitListener1(ConnectionFactory connectionFactory, Queue queue1) {
+		SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
+		listenerContainer.addQueues(queue1);
+		listenerContainer.setMessageListener(
+				message -> System.out.println("Received message A " + new String(message.getBody())));
+		return listenerContainer;
+	}
+
+	@Bean
+	public SimpleMessageListenerContainer simpleRabbitListener2(ConnectionFactory connectionFactory, Queue queue2) {
+		SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
+		listenerContainer.addQueues(queue2);
+		listenerContainer.setMessageListener(
+				message -> System.out.println("Received message B " + new String(message.getBody())));
+		return listenerContainer;
+	}
+
+	@Bean
+	public SimpleMessageListenerContainer simpleRabbitListener3(ConnectionFactory connectionFactory, Queue queue3) {
+		SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
+		listenerContainer.addQueues(queue3);
+		listenerContainer.setMessageListener(
+				message -> System.out.println("Received message C " + new String(message.getBody())));
+		return listenerContainer;
+	}
+
+	@Bean
+	public SimpleMessageListenerContainer simpleRabbitListener4(ConnectionFactory connectionFactory, Queue queue4) {
+		SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
+		listenerContainer.addQueues(queue4);
+		listenerContainer.setMessageListener(
+				message -> System.out.println("Received message D " + new String(message.getBody())));
+		return listenerContainer;
 	}
 
 }

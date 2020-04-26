@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.talch.ChatSystem;
 import com.talch.beans.Role;
 import com.talch.beans.Users;
+import com.talch.config.AdminConfig;
 import com.talch.customExeption.FacadeNullExeption;
 import com.talch.facade.Facade;
 import com.talch.facade.UsersFacade;
@@ -37,9 +38,11 @@ public class LoginController {
 
 	@Autowired
 	private SysService service;
-	
+
 	@Autowired
 	ApplicationContext ctx;
+	@Autowired
+	AdminConfig config;
 
 	@PostConstruct
 	public void start() {
@@ -47,15 +50,17 @@ public class LoginController {
 		Users user2 = new Users(4, "+972548012832", "1112", "Yosi", Role.User, null);
 		Users user3 = new Users(5, "+972548012833", "1113", "Sam", Role.User, null);
 		Users user4 = new Users(6, "+972548012834", "1114", "Gai", Role.User, null);
-		Users user5 = new Users(1, "+972547219582", "1234", "Anatoly", Role.Admin, "admin1");
-		Users user6 = new Users(2, "+972546647991", "1234", "Kobi", Role.Admin, "admin2");
+		Users userA = new Users(1, config.getFirstAdminPhone(), config.getAdminPass(), config.getFirstAdminName(),
+				Role.Admin, "admin1");
+		Users userB = new Users(2, config.getSecondAdminPhone(), config.getAdminPass(), config.getSecondAdminName(),
+				Role.Admin, "admin2");
+		userFacade.getUserRepo().save(userA);
+		userFacade.getUserRepo().save(userB);
 
 		userFacade.getUserRepo().save(user1);
 		userFacade.getUserRepo().save(user2);
 		userFacade.getUserRepo().save(user3);
 		userFacade.getUserRepo().save(user4);
-		userFacade.getUserRepo().save(user5);
-		userFacade.getUserRepo().save(user6);
 
 	}
 
@@ -65,15 +70,13 @@ public class LoginController {
 			@RequestParam("operatorCode") String operatorCode, @RequestParam("phone") String phone,
 			@RequestParam("password") String password) {
 
-		
 		Facade facade = null;
 		// String token = UUID.randomUUID().toString();
 		String token = "user" + id++;
 		long lastAccessed = System.currentTimeMillis();
 
 		String userPhone;
-		userPhone = service.getCountryCode().get(countryCode) + 
-				service.getOperatorCode().get(operatorCode) + phone;
+		userPhone = service.getCountryCode().get(countryCode) + service.getOperatorCode().get(operatorCode) + phone;
 		try {
 			facade = system.login(userPhone, password);
 		} catch (FacadeNullExeption e) {
@@ -82,14 +85,14 @@ public class LoginController {
 		}
 		if ((facade != null) && (facade.getRole().toString().equals("User"))) {
 			Users user = userFacade.getUserRepo().findByPhoneAndPassword(userPhone, password);
-			
+
 			user.setToken(token);
 			userFacade.saveUser(user);
 			CustomSession session = ctx.getBean(CustomSession.class);
 			session.setFacade(facade);
 			session.setLastAccessed(lastAccessed);
 			system.getSessionList().add(session);
-			
+
 			return ResponseEntity.status(HttpStatus.OK).body(token);
 		} else if ((facade != null) && (facade.getRole().toString().equals("Admin"))) {
 			return ResponseEntity.status(HttpStatus.OK).body("You Are Admin and you know you token :)");

@@ -30,6 +30,8 @@ public class Room {
 	
 	private long id;
 	
+	private String routKey;
+	
 	private RoomColor color;
 	
 	private String roomName;

@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.talch.beans.ChattingMessage;
@@ -19,9 +18,8 @@ public class MessageController {
 	private ConversationServ serv;
 
 	@PostMapping(value = "/producer")
-	public ChattingMessage producer(@RequestParam("exchangeName") String exchange,
-			@RequestParam("routingKey") String routingKey, @RequestBody String message,
+	public ChattingMessage producer(@RequestBody String message,
 			@RequestHeader String token) {
-		return serv.sendMessage(message, exchange, routingKey, token);
+		return serv.sendMessage(message, token);
 	}
 }

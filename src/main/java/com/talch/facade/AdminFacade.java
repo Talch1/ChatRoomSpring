@@ -58,7 +58,7 @@ public class AdminFacade implements Facade {
 					roomRepo.delete(room);	
 					return roomRepo.findAll();
 				}else {
-					throw new ExExeption("this room is not exist");
+					throw new ExExeption("This room is not exist");
 				}
 				 
 			}else {

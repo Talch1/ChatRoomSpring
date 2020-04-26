@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+
 import com.talch.beans.ChattingMessage;
 import com.talch.beans.Room;
 import com.talch.beans.RoomColor;
@@ -22,6 +23,7 @@ import com.talch.customExeption.FacadeNullExeption;
 import com.talch.facade.UsersFacade;
 import com.talch.repo.ChatRepo;
 import com.talch.repo.RoomRepo;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,13 +55,16 @@ public class RoomService {
 	@Autowired
 	private ChatRepo chatRepo;
 
+	@Autowired
+	private Producer producer;
+
 	@PostConstruct
 	public void roomInilaice() {
 
 		roomRepo.deleteAll();
-		roomRepo.save(new Room(roomNum++, RoomColor.Green, "room1", null));
-		roomRepo.save(new Room(roomNum++, RoomColor.Green, "room2", null));
-		roomRepo.save(new Room(roomNum++, RoomColor.Green, "room3", null));
+		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room1", null));
+		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room2", null));
+		roomRepo.save(new Room(roomNum++, null, RoomColor.Green, "room3", null));
 
 	}
 
@@ -87,7 +92,7 @@ public class RoomService {
 		Room room = roomRepo.findByRoomName(roomName);
 
 		if (room == null) {
-			return roomRepo.save(new Room(roomNum++, RoomColor.Green, roomName, null));
+			return roomRepo.save(new Room(roomNum++, null, RoomColor.Green, roomName, null));
 		}
 		throw new ExExeption("This room is exist");
 	}
@@ -99,7 +104,7 @@ public class RoomService {
 		service.userCheck(user);
 		room.setRoomName(newRoomName);
 
-		return roomRepo.save(new Room(room.getId(), room.getColor(), newRoomName, room.getUsers()));
+		return roomRepo.save(new Room(room.getId(), room.getRoutKey(), room.getColor(), newRoomName, room.getUsers()));
 	}
 
 	public Room enterRoom(String token, long id) throws FacadeNullExeption, ExExeption {
@@ -121,14 +126,19 @@ public class RoomService {
 			userSet.add(user);
 			room.get().setUsers(userSet);
 			room.get().setColor(RoomColor.Red);
-			convServ.start(room.get().getId());
+			try {
+				convServ.start(room.get().getId());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			return roomRepo.save(room.get());
 		}
 		throw new ExExeption("This room is full");
 	}
 
-	public Room roomExit(String token, long id) throws ExExeption {
+	public Room exitRoom(String token, long id) throws ExExeption {
 
 		Optional<Room> room = getRoomById(id);
 		Users user = userFacade.getUserByToken(token);
@@ -145,15 +155,20 @@ public class RoomService {
 			System.out.println("user " + user + "came out");
 			room.get().setColor(RoomColor.Green);
 			room.get().setUsers(roomUsers1);
+
+			try {
+				convServ.blockingQueue.put(room.get().getRoutKey());
+				room.get().setRoutKey(null);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			roomRepo.save(room.get());
-			ArrayList<ChattingMessage> chattingMessages = (ArrayList<ChattingMessage>) convServ.producer
-					.getAllMessages().clone();
+			ArrayList<ChattingMessage> chattingMessages = (ArrayList<ChattingMessage>) producer.getAllMessages()
+					.clone();
 			chattingMessages.removeIf(m -> m.getRoomId() != room.get().getId());
 			chatRepo.saveAll(chattingMessages);
-//			Conversation conv = ctx.getBean(Conversation.class);
-//			conv.setMassages(chattingMessages);
-//			conv.setId(room.get().getId());
-//			convRepo.save(conv);
 
 			return room.get();
 

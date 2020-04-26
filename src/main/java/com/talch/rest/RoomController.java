@@ -81,7 +81,7 @@ public class RoomController {
 	public ResponseEntity<?> cameOut(@RequestHeader String token, @RequestParam long roomId) {
 
 		try {
-			return ResponseEntity.status(HttpStatus.OK).body(roomService.roomExit(token, roomId));
+			return ResponseEntity.status(HttpStatus.OK).body(roomService.exitRoom(token, roomId));
 		} catch (ExExeption e) {
 
 			e.printStackTrace();
